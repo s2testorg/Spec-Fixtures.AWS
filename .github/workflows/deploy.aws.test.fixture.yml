@@ -1,0 +1,22 @@
+name: Deploy AWS Test Fixture
+on:
+  push:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: zip
+        run: |
+          pushd specs
+          zip -qq -r  lambda.zip index.js
+          popd
+          zipinfo -t specs/lambda.zip
+      - name: DEPLOY
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_LAMBDA_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_LAMBDA_SECRET_ACCESS_KEY }}
+          aws_region: us-east-1
+          function_name: testspace-test-man-AwsFixtureTest
+          zip_file: specs/lambda.zip
